@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BAMBAMAI — Comparison Mode</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --blue:#3B82F6;
@@ -90,16 +90,6 @@
     -webkit-background-clip:text;background-clip:text;color:transparent;}
   .brand-text .eyebrow{font-size:11.5px;color:var(--text-muted);letter-spacing:1.6px;text-transform:uppercase;margin-top:2px;font-weight:500;}
   .header-actions{display:flex;align-items:center;gap:8px;}
-  
-  /* Login and Sign Up Buttons Like ChatGPT */
-  .login-btn{background:transparent;border:none;color:var(--text-primary);font-family:'Inter',sans-serif;font-weight:500;font-size:14px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .2s ease;}
-  .login-btn:hover{background:rgba(255,255,255,0.08);}
-  [data-theme="light"] .login-btn:hover{background:rgba(0,0,0,0.05);}
-  .signup-btn{background:#FFFFFF;border:none;color:#0B0F1A;font-family:'Inter',sans-serif;font-weight:500;font-size:14px;padding:8px 14px;border-radius:8px;cursor:pointer;transition:all .2s ease;}
-  .signup-btn:hover{background:rgba(255,255,255,0.9);transform:translateY(-1px);}
-  [data-theme="light"] .signup-btn{background:#111827;color:#FFFFFF;}
-  [data-theme="light"] .signup-btn:hover{background:rgba(17,24,39,0.9);}
-
   .gear-btn,.theme-btn{width:38px;height:38px;border-radius:10px;background:var(--panel-glass);
     border:1px solid var(--border-tint);backdrop-filter:blur(10px);
     color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;
@@ -327,8 +317,6 @@
       </div>
     </div>
     <div class="header-actions">
-      <button class="login-btn" id="loginBtn">Log in</button>
-      <button class="signup-btn" id="signupBtn">Sign up</button>
       <button class="theme-btn" id="themeBtn" aria-label="Toggle light/dark mode" title="Toggle theme">◐</button>
       <button class="gear-btn" id="gearBtn" aria-label="Provider settings" title="Manage providers">⚙</button>
     </div>
