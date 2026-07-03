@@ -322,9 +322,12 @@
         <button id="loginBtn" style="background-color: transparent; color: #ffffff; border: 1px solid var(--border-tint); padding: 7px 15px; border-radius: 9999px; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: background-color 0.2s; font-family:'Sora',sans-serif;">
           Log in
         </button>
-        <span id="userProfile" style="display: none; align-items: center; gap: 8px;">
+        <span id="userProfile" style="display: none; align-items: center; gap: 10px;">
           <img id="userAvatar" src="" alt="Avatar" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border-tint);">
-          <span id="userName" style="color: #ffffff; font-size: 13.5px; font-weight: 500;"></span>
+          <span style="display: flex; flex-direction: column; line-height: 1.2;">
+            <span id="userName" style="color: #ffffff; font-size: 13.5px; font-weight: 500;"></span>
+            <span id="logoutBtn" style="color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline; transition: color 0.2s;">Log out</span>
+          </span>
         </span>
       </div>
 
@@ -644,6 +647,7 @@ function armConfirm(el, text, cb){ cb(); }
   const userProfile = document.getElementById('userProfile');
   const userAvatar = document.getElementById('userAvatar');
   const userName = document.getElementById('userName');
+  const logoutBtn = document.getElementById('logoutBtn');
 
   loginBtn.addEventListener('mouseenter', () => loginBtn.style.backgroundColor = 'rgba(255,255,255,0.08)');
   loginBtn.addEventListener('mouseleave', () => loginBtn.style.backgroundColor = 'transparent');
@@ -655,6 +659,14 @@ function armConfirm(el, text, cb){ cb(); }
       }).catch((error) => {
         console.error("Login Error:", error);
       });
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+      console.log("User signed out successfully!");
+    }).catch((error) => {
+      console.error("Logout Error:", error);
+    });
   });
 
   onAuthStateChanged(auth, (user) => {
