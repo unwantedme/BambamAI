@@ -1441,6 +1441,62 @@ document.getElementById('clearHistoryBtn').onclick = (e) => {
       }
     }
   });
+// ---- REALTIME AUTH STATE MONITOR (BUTTON HIDE/SHOW LOGIC) ----
+  onAuthStateChanged(auth, (user) => {
+    // Aapke original HTML ke mutabiq sahi IDs aur Classes ko pakadna
+    const mainLoginBtn = document.getElementById('loginBtn');
+    // Class 'signup' wale button ko fetch karna (jo Sign Up Free button hai)
+    const mainSignUpBtn = document.querySelector('.auth-btn.signup');
+    const authOverlay = document.getElementById('authContainer');
+
+    if (user) {
+      console.log("User successfully logged in:", user.email);
+      
+      // 1. Agar user logged in hai, toh login ka parda hatao
+      if (authOverlay) {
+        authOverlay.style.display = 'none';
+      }
+      
+      // 2. Main top header ke Login button ka text 'Logout' karo
+      if (mainLoginBtn) {
+        mainLoginBtn.innerText = "Logout";
+        mainLoginBtn.onclick = async () => {
+          try {
+            await auth.signOut();
+            alert("Logged out successfully!");
+          } catch (err) {
+            alert("Logout Error: " + err.message);
+          }
+        };
+      }
+      
+      // 3. 'Sign Up Free' button ko bilkul CHUPAO (Hide)
+      if (mainSignUpBtn) {
+        mainSignUpBtn.style.display = 'none';
+      }
+
+    } else {
+      console.log("User is currently logged out.");
+      
+      // 4. Agar user login nahi hai, toh login parda (Overlay) wapas dikhao
+      if (authOverlay) {
+        authOverlay.style.display = 'flex';
+      }
+      
+      // 5. Logout hone par ya outside click par button ko wapas normal 'Login' banao
+      if (mainLoginBtn) {
+        mainLoginBtn.innerText = "Login";
+        mainLoginBtn.onclick = () => {
+          if (authOverlay) authOverlay.style.display = 'flex';
+        };
+      }
+      
+      // 6. Sign Up button ko WAPAS DIKHAO (Show)
+      if (mainSignUpBtn) {
+        mainSignUpBtn.style.display = 'inline-block';
+      }
+    }
+  });
 </script>
 </body>
 </html>
