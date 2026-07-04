@@ -1454,15 +1454,15 @@ document.getElementById('clearHistoryBtn').onclick = (e) => {
   // this is the single source of truth the main script reads from
   // (via window.aiConfigMap) to resolve base URL + API key per dropdown pick.
   const aiConfigMap = {
-    "gemini-2-5-flash":   { url: "https://generativelanguage.googleapis.com/v1beta", key: "YOUR_GEMINI_KEY" },
-    "llama-3-3-groq":     { url: "https://api.groq.com/openai/v1", key: "YOUR_GROQ_KEY" },
-    "openrouter-free":    { url: "https://openrouter.ai/api/v1", key: "YOUR_OPENROUTER_KEY" },
-    "mistral-experiment": { url: "https://api.mistral.ai/v1", key: "YOUR_MISTRAL_KEY" },
-    "cerebras-llama":     { url: "https://api.cerebras.ai/v1", key: "YOUR_CEREBRAS_KEY" },
+    "gemini-2-5-flash":   { url: "https://generativelanguage.googleapis.com/v1beta", key: "AQ.Ab8RN6Kh0SahuGQ32LLLvZCE0Cowb0FyRVjUvKX8Wmpbvx06_g" },
+    "llama-3-3-groq":     { url: "https://api.groq.com/openai/v1", key: "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" },
+    "openrouter-free":    { url: "https://openrouter.ai/api/v1", key: "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" },
+    "mistral-experiment": { url: "https://api.mistral.ai/v1", key: "PMbHkISvKAkgaToSPVaBA7FJxl7FyHQw" },
+    "cerebras-llama":     { url: "https://api.cerebras.ai/v1", key: "csk-cvp463eppm88kdne3vhe3v6nhffcyt63ccw6tfmytv339h45" },
     "huggingface-api":    { url: "https://api-inference.huggingface.co/models", key: "YOUR_HF_KEY" },
     "cloudflare-workers": { url: "https://api.cloudflare.com/client/v4/accounts", key: "YOUR_CLOUDFLARE_KEY" },
-    "github-models":      { url: "https://models.inference.ai.azure.com", key: "YOUR_GITHUB_KEY" },
-    "cohere-command":     { url: "https://api.cohere.com/v2", key: "YOUR_COHERE_KEY" },
+    "github-models":      { url: "https://models.inference.ai.azure.com", key: "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" },
+    "cohere-command":     { url: "https://api.cohere.com/v2", key: "utWR8MoMU5L7iZx1TxfiwQkWWEaaTOsQQmpi8DqI" },
     "siliconflow-oss":    { url: "https://api.siliconflow.cn/v1", key: "YOUR_SILICONFLOW_KEY" }
   };
   window.aiConfigMap = aiConfigMap;
