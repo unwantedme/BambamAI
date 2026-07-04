@@ -1404,19 +1404,38 @@ document.getElementById('clearHistoryBtn').onclick = (e) => {
   // Automatic Login/Logout Logic
   onAuthStateChanged(auth, (user) => {
     const mainLoginBtn = document.getElementById('loginBtn');
+    
+    // Aapki website ke "Sign Up Free" button ko dhoondhne ke liye (HTML class ke hisab se)
+    const signUpFreeBtn = document.querySelector('.top-btn-signup') || document.querySelector('.signup-btn'); 
+
     if (user) {
       authContainer.style.display = 'none'; 
+      
+      // 1. Login button ko Logout banao
       if(mainLoginBtn) {
         mainLoginBtn.innerText = "Logout";
         mainLoginBtn.onclick = () => {
           auth.signOut().then(() => { alert("Logged out successfully!"); });
         };
       }
+      
+      // 2. Sign Up Free button ko automatic GAYAB kar do
+      if(signUpFreeBtn) {
+        signUpFreeBtn.style.display = 'none';
+      }
+
     } else {
       authContainer.style.display = 'flex';
+      
+      // 3. Wapas normal Login button banao
       if(mainLoginBtn) {
         mainLoginBtn.innerText = "Login";
         mainLoginBtn.onclick = () => { authContainer.style.display = 'flex'; };
+      }
+      
+      // 4. Logout hone par Sign Up Free button ko WAPAS DIKHAO
+      if(signUpFreeBtn) {
+        signUpFreeBtn.style.display = 'inline-block';
       }
     }
   });
