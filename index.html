@@ -399,23 +399,71 @@
     display:flex;align-items:center;padding:4px;border-radius:6px;}
   .rm-btn svg.icon{width:15px;height:15px;}
   .rm-btn:hover{color:var(--danger);background:var(--hover-bg);}
-/* ================= Hardcoded Provider Selects ================= */
-.provider-select-row{
-  display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;
+/* ================= Admin Control Panel ================= */
+.admin-toggle-btn{
+  position:fixed; bottom:15px; left:15px; z-index:99998;
+  opacity:0.2; transition:opacity .2s ease, transform .2s ease;
+  background:var(--panel); color:var(--text-primary);
+  border:1px solid var(--border-tint); border-radius:999px;
+  padding:8px 16px; font-size:12px; font-weight:600; letter-spacing:.02em;
+  cursor:pointer; font-family:'Inter', sans-serif;
 }
-.provider-select-wrap{
-  display:flex; flex-direction:column; gap:4px; flex:1; min-width:220px;
+.admin-toggle-btn:hover{ opacity:0.95; transform:translateY(-1px); }
+
+.admin-panel-overlay{
+  display:none; position:fixed; inset:0; z-index:100000;
+  align-items:center; justify-content:center;
+  background:rgba(0,0,0,0.55);
+  font-family:'Inter', sans-serif;
 }
-.provider-select-wrap label{
-  font-size:11px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
-  color:var(--text-muted); font-family:'Inter', sans-serif;
+.admin-panel-overlay.open{ display:flex; }
+.admin-panel-box{
+  width:460px; max-width:92%; max-height:86vh; overflow-y:auto;
+  background:var(--panel-glass-strong);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-tint); border-radius:var(--radius);
+  padding:28px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.6);
+  color:var(--text-primary); position:relative;
 }
-select.providerSelect{
-  width:100%; box-sizing:border-box; padding:9px 12px; border-radius:10px;
-  border:1px solid var(--border-tint); background:var(--pill-bg); color:var(--text-primary);
-  font-size:13px; font-family:'Inter', sans-serif; cursor:pointer;
+.admin-panel-box h2{ margin:0 0 4px; font-size:20px; font-weight:700; font-family:'Sora', sans-serif; }
+.admin-panel-box .admin-sub{ margin:0 0 20px; font-size:13px; color:var(--text-muted); }
+.admin-panel-box .admin-field{ margin-bottom:12px; }
+.admin-panel-box .admin-field label{ display:block; font-size:12.5px; color:var(--text-secondary); margin-bottom:5px; font-weight:500; }
+.admin-panel-box .admin-field input{
+  width:100%; box-sizing:border-box; padding:10px 12px; border-radius:8px;
+  border:1px solid var(--border-tint); background:var(--bg-deep); color:var(--text-primary);
+  font-size:13.5px; font-family:'Inter', sans-serif;
 }
-select.providerSelect:focus{ outline:none; border-color:var(--blue); }
+.admin-panel-box .admin-field input:focus{ outline:none; border-color:var(--blue); }
+#adminAddModelBtn{
+  width:100%; padding:11px; border-radius:8px; border:none; margin-top:6px;
+  background:var(--btn-primary-bg); color:var(--btn-primary-text);
+  font-weight:600; font-size:14px; cursor:pointer;
+}
+#adminAddModelBtn:hover{ opacity:0.9; }
+.admin-close-x{
+  position:absolute; top:20px; right:24px; background:none; border:none; cursor:pointer;
+  color:var(--text-muted); font-size:20px; line-height:1;
+}
+.admin-divider{ border:none; border-top:1px solid var(--border-tint); margin:20px 0 14px; }
+#adminModelList{
+  list-style:none; margin:0; padding:0; max-height:220px; overflow-y:auto;
+  display:flex; flex-direction:column; gap:8px;
+}
+#adminModelList li{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:9px 12px; border-radius:8px; background:var(--panel);
+  border:1px solid var(--border-tint); font-size:13px;
+}
+#adminModelList .aml-info{ min-width:0; }
+#adminModelList .aml-name{ font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#adminModelList .aml-meta{ font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono', monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#adminModelList .aml-delete{
+  flex-shrink:0; border:none; background:rgba(249,58,55,0.12); color:var(--danger);
+  border-radius:6px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer;
+}
+#adminModelList .aml-delete:hover{ background:rgba(249,58,55,0.22); }
+#adminModelEmpty{ font-size:12.5px; color:var(--text-muted); padding:8px 2px; }
 </style>
 </head>
 <body>
@@ -506,18 +554,6 @@ select.providerSelect:focus{ outline:none; border-color:var(--blue); }
 
       <div class="composer">
         <textarea id="promptInput" placeholder="Ask one question, send it to every model at once...">Explain the difference between concurrency and parallelism in two sentences.</textarea>
-
-        <div class="provider-select-row">
-          <div class="provider-select-wrap">
-            <label for="providerSelectA">Pane A model</label>
-            <select class="providerSelect" id="providerSelectA"></select>
-          </div>
-          <div class="provider-select-wrap">
-            <label for="providerSelectB">Pane B model</label>
-            <select class="providerSelect" id="providerSelectB"></select>
-          </div>
-        </div>
-
         <div class="chip-row" id="chipRow"></div>
 
         <div class="footer-row">
@@ -1171,74 +1207,50 @@ document.getElementById('saveProvider').onclick = () => {
   updateResultsToolbar();
 };
 
-/* ---------- Hardcoded free-tier AI providers ----------
-   No database, no runtime fetch — this list is baked directly into the
-   page. `aiConfigMap` (base URL + API key placeholder per provider) is
-   defined once inside the Firebase <script type="module"> further down
-   and exposed on window.aiConfigMap, so this stays the single source of
-   truth for request-time config while this script owns the UI wiring. */
-const PROVIDER_OPTIONS = [
-  { value: 'gemini-2-5-flash',   label: '1. Google AI Studio (Gemini 2.5 Flash - Free Tier)' },
-  { value: 'llama-3-3-groq',     label: '2. Groq Cloud (Llama 3.3 70B - Ultra Fast Free)' },
-  { value: 'openrouter-free',    label: '3. OpenRouter Free (Multi-Model Hub - No Card)' },
-  { value: 'mistral-experiment', label: '4. Mistral AI (Codestral/Small - Free Experiment Plan)' },
-  { value: 'cerebras-llama',     label: '5. Cerebras AI (Llama 3.3 70B - 2100+ tok/s Free)' },
-  { value: 'huggingface-api',    label: '6. Hugging Face (100K+ OSS Models Inference API)' },
-  { value: 'cloudflare-workers', label: '7. Cloudflare Workers AI (Edge Models Free Tier)' },
-  { value: 'github-models',      label: '8. GitHub Models (GPT-4o/Claude 3.5 Market Trial)' },
-  { value: 'cohere-command',     label: '9. Cohere API (Command R+ Free Developer Tier)' },
-  { value: 'siliconflow-oss',    label: '10. SiliconFlow AI (All-in-One Open Source Free Tier)' }
-];
-
-function populateProviderSelects(){
-  document.querySelectorAll('select.providerSelect').forEach(sel => {
-    if(sel.dataset.populated === 'true') return;
-    sel.innerHTML = '';
-    PROVIDER_OPTIONS.forEach(opt => {
-      const optionEl = document.createElement('option');
-      optionEl.value = opt.value;
-      optionEl.textContent = opt.label;
-      sel.appendChild(optionEl);
-    });
-    sel.dataset.populated = 'true';
+/* ---------- Admin-curated models bridge ----------
+   Called by the Firebase admin module (bottom of page) whenever the
+   "ai_models" Firestore collection changes. Mirrors each curated model
+   into the existing `providers` list as a non-BYOK, pre-configured
+   provider so it shows up as a chip / is selectable exactly like a
+   manually-added provider, and also mirrors it into any
+   <select class="providerSelect"> elements present on the page. */
+window.syncAdminModels = function(adminModels){
+  const incomingIds = new Set(adminModels.map(m => 'admin-' + m.id));
+  providers = providers.filter(p => p.source !== 'admin' || incomingIds.has(p.id));
+  adminModels.forEach((m, i) => {
+    const id = 'admin-' + m.id;
+    const existing = providers.find(p => p.id === id);
+    if(existing){
+      existing.name = m.displayName;
+      existing.baseUrl = m.baseUrl;
+      existing.model = m.modelId;
+      existing.apiKey = m.apiKey;
+    } else {
+      const color = customColorCycle[(providerCounter + i) % customColorCycle.length];
+      providers.push({
+        id, name: m.displayName, baseUrl: m.baseUrl, model: m.modelId, apiKey: m.apiKey,
+        builtin: false, source: 'admin', color, active: false
+      });
+    }
   });
-}
-
-function activateHardcodedProvider(value, paneEl){
-  const opt = PROVIDER_OPTIONS.find(o => o.value === value);
-  if(!opt) return;
-  const cfg = (window.aiConfigMap && window.aiConfigMap[value]) || { url: '', key: '' };
-  const id = 'hard-' + value;
-  let provider = providers.find(p => p.id === id);
-  if(!provider){
-    const color = customColorCycle[providerCounter % customColorCycle.length];
-    providerCounter++;
-    provider = {
-      id, name: opt.label, baseUrl: cfg.url, model: value, apiKey: cfg.key,
-      builtin: false, source: 'hardcoded', color, active: false
-    };
-    providers.push(provider);
-  }
-  if(mode === 'direct'){
-    providers.forEach(p => p.active = false);
-  }
-  provider.active = true;
   renderChips();
-  if(typeof renderProviderList === 'function') renderProviderList();
+  renderProviderList();
   renderEmptyResults();
   updateComposerState();
   updateResultsToolbar();
-}
 
-function wireProviderSelects(){
-  const selA = document.getElementById('providerSelectA');
-  const selB = document.getElementById('providerSelectB');
-  if(selA) selA.onchange = () => activateHardcodedProvider(selA.value, 'A');
-  if(selB) selB.onchange = () => activateHardcodedProvider(selB.value, 'B');
-}
-
-populateProviderSelects();
-wireProviderSelects();
+  document.querySelectorAll('select.providerSelect').forEach(sel => {
+    const prevValue = sel.value;
+    sel.innerHTML = '';
+    adminModels.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = 'admin-' + m.id;
+      opt.textContent = m.displayName;
+      sel.appendChild(opt);
+    });
+    if([...sel.options].some(o => o.value === prevValue)) sel.value = prevValue;
+  });
+};
 
 renderChips();
 renderEmptyResults();
@@ -1435,6 +1447,7 @@ document.getElementById('clearHistoryBtn').onclick = (e) => {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   // !!! APNI SCREEN SE MILI HUI REAL CONFIG KEYS YAHA DALAIN !!!
   const firebaseConfig = {
@@ -1447,25 +1460,8 @@ document.getElementById('clearHistoryBtn').onclick = (e) => {
   };
 
   const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
   const auth = getAuth(app);
-
-  // ================= Hardcoded free-tier AI provider config =================
-  // No database, no runtime fetch. Fill in real keys where you have them —
-  // this is the single source of truth the main script reads from
-  // (via window.aiConfigMap) to resolve base URL + API key per dropdown pick.
-  const aiConfigMap = {
-    "gemini-2-5-flash":   { url: "https://generativelanguage.googleapis.com/v1beta", key: "AQ.Ab8RN6Kh0SahuGQ32LLLvZCE0Cowb0FyRVjUvKX8Wmpbvx06_g" },
-    "llama-3-3-groq":     { url: "https://api.groq.com/openai/v1", key: "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" },
-    "openrouter-free":    { url: "https://openrouter.ai/api/v1", key: "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" },
-    "mistral-experiment": { url: "https://api.mistral.ai/v1", key: "PMbHkISvKAkgaToSPVaBA7FJxl7FyHQw" },
-    "cerebras-llama":     { url: "https://api.cerebras.ai/v1", key: "csk-cvp463eppm88kdne3vhe3v6nhffcyt63ccw6tfmytv339h45" },
-    "huggingface-api":    { url: "https://api-inference.huggingface.co/models", key: "YOUR_HF_KEY" },
-    "cloudflare-workers": { url: "https://api.cloudflare.com/client/v4/accounts", key: "YOUR_CLOUDFLARE_KEY" },
-    "github-models":      { url: "https://models.inference.ai.azure.com", key: "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" },
-    "cohere-command":     { url: "https://api.cohere.com/v2", key: "utWR8MoMU5L7iZx1TxfiwQkWWEaaTOsQQmpi8DqI" },
-    "siliconflow-oss":    { url: "https://api.siliconflow.cn/v1", key: "YOUR_SILICONFLOW_KEY" }
-  };
-  window.aiConfigMap = aiConfigMap;
   const googleProvider = new GoogleAuthProvider();
 
   const authContainer = document.getElementById('authContainer');
@@ -1614,7 +1610,187 @@ document.getElementById('clearHistoryBtn').onclick = (e) => {
     }
   });
 
+  // ================= Admin Control Panel (Firestore) =================
+  // Note: `db` was already initialized right after initializeApp(app) above,
+  // so this whole panel reads/writes the exact Firestore instance tied to
+  // your project's firebaseConfig.
+  const adminToggleBtn = document.getElementById('adminToggleBtn');
+  const adminPanel = document.getElementById('adminPanel');
+  const adminModelListEl = document.getElementById('adminModelList');
+  const adminModelEmptyEl = document.getElementById('adminModelEmpty');
+
+  let adminUnsubscribe = null;
+  let latestAdminModels = [];
+
+  function toKebabCase(str){
+    return String(str)
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || ('model-' + Date.now());
+  }
+
+  function renderAdminModelList(models){
+    adminModelListEl.innerHTML = '';
+    if(models.length === 0){
+      adminModelEmptyEl.style.display = 'block';
+      return;
+    }
+    adminModelEmptyEl.style.display = 'none';
+    models.forEach(m => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <div class="aml-info">
+          <div class="aml-name">${m.displayName}</div>
+          <div class="aml-meta">${m.modelId}</div>
+        </div>
+        <button class="aml-delete" type="button">Delete</button>
+      `;
+      li.querySelector('.aml-delete').onclick = () => window.removeAiModel(m.id);
+      adminModelListEl.appendChild(li);
+    });
+  }
+
+  // Populates every <select class="providerSelect"> on the page (both
+  // chat panes) with the current cloud model list. Safe no-op if none exist.
+  function populateProviderSelects(models){
+    document.querySelectorAll('select.providerSelect').forEach(sel => {
+      const prevValue = sel.value;
+      sel.innerHTML = '';
+      models.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.textContent = m.displayName;
+        sel.appendChild(opt);
+      });
+      if([...sel.options].some(o => o.value === prevValue)) sel.value = prevValue;
+    });
+  }
+
+  // Real-time Firestore listener on the "ai_models" collection.
+  // Runs for EVERY user (not just the admin) as soon as the page loads,
+  // so models persist across refreshes and are already there for anyone
+  // who loads or refreshes the site, straight from the cloud.
+  function startAdminListener(){
+    if(adminUnsubscribe) return; // already listening, avoid duplicate subscriptions
+    adminUnsubscribe = onSnapshot(collection(db, 'ai_models'), (snapshot) => {
+      const models = [];
+      snapshot.forEach(docSnap => {
+        models.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      latestAdminModels = models;
+
+      // 1. refresh the admin modal's model list (with Delete buttons)
+      renderAdminModelList(models);
+
+      // 2. refresh every providerSelect dropdown across both chat panes
+      populateProviderSelects(models);
+
+      // 3. mirror into the existing chip/provider system so models are
+      //    immediately usable in Comparison/Direct mode too
+      if(typeof window.syncAdminModels === 'function'){
+        window.syncAdminModels(models);
+      }
+    }, (error) => {
+      console.error('Admin models listener error:', error);
+    });
+  }
+
+  // Start listening immediately on page load — this is what keeps models
+  // populated for everyone after a refresh, independent of the admin panel.
+  startAdminListener();
+
+  adminToggleBtn.onclick = () => {
+    const pass = prompt('Enter admin password:');
+    if(pass === '12345'){
+      adminPanel.classList.add('open');
+      // listener is already running from page load; re-render immediately
+      // with whatever we've already received in case snapshot fired before
+      // the panel existed in view.
+      renderAdminModelList(latestAdminModels);
+    } else if(pass !== null){
+      alert('Incorrect password.');
+    }
+  };
+
+  document.getElementById('adminCloseBtn').onclick = () => {
+    adminPanel.classList.remove('open');
+  };
+  adminPanel.onclick = (e) => {
+    if(e.target.id === 'adminPanel') adminPanel.classList.remove('open');
+  };
+
+  window.addNewAiModel = async function(){
+    const displayName = document.getElementById('adminDisplayName').value.trim();
+    const modelId = document.getElementById('adminModelId').value.trim();
+    const baseUrl = document.getElementById('adminBaseUrl').value.trim();
+    const apiKey = document.getElementById('adminApiKey').value.trim();
+
+    if(!displayName || !modelId || !baseUrl || !apiKey){
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    const docId = toKebabCase(modelId);
+
+    try {
+      await setDoc(doc(db, 'ai_models', docId), {
+        displayName, modelId, baseUrl, apiKey,
+        updatedAt: Date.now()
+      });
+      document.getElementById('adminDisplayName').value = '';
+      document.getElementById('adminModelId').value = '';
+      document.getElementById('adminBaseUrl').value = '';
+      document.getElementById('adminApiKey').value = '';
+    } catch (error) {
+      alert('Error saving model: ' + error.message);
+    }
+  };
+
+  window.removeAiModel = async function(modelDocId){
+    if(!confirm('Delete this model?')) return;
+    try {
+      await deleteDoc(doc(db, 'ai_models', modelDocId));
+    } catch (error) {
+      alert('Error deleting model: ' + error.message);
+    }
+  };
 </script>
+
+<button id="adminToggleBtn" class="admin-toggle-btn" type="button">Admin</button>
+
+<div id="adminPanel" class="admin-panel-overlay">
+  <div class="admin-panel-box">
+    <div class="admin-panel-head">
+      <h2>Admin Control Panel</h2>
+      <p class="admin-sub">Manage the AI models available across BAMBAMAI. Changes sync to every user in real time.</p>
+      <button id="adminCloseBtn" class="admin-close-x" type="button" aria-label="Close">&times;</button>
+    </div>
+
+    <div class="admin-field">
+      <label for="adminDisplayName">Display Name</label>
+      <input id="adminDisplayName" type="text" placeholder="e.g. GPT-4o (OpenRouter)">
+    </div>
+    <div class="admin-field">
+      <label for="adminModelId">Model ID</label>
+      <input id="adminModelId" type="text" placeholder="e.g. openai/gpt-4o">
+    </div>
+    <div class="admin-field">
+      <label for="adminBaseUrl">Base URL</label>
+      <input id="adminBaseUrl" type="text" placeholder="https://openrouter.ai/api/v1">
+    </div>
+    <div class="admin-field">
+      <label for="adminApiKey">API Key</label>
+      <input id="adminApiKey" type="password" placeholder="sk-...">
+    </div>
+    <button id="adminAddModelBtn" type="button" onclick="window.addNewAiModel()">Add Model</button>
+
+    <hr class="admin-divider">
+
+    <div id="adminModelEmpty">No active models yet.</div>
+    <ul id="adminModelList"></ul>
+  </div>
+</div>
 
 </body>
 </html>
